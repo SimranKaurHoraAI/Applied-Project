@@ -1,0 +1,70 @@
+---
+title: "Toysmith SARIMA"
+author: "Revathi Chintapalli"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Step 1: Load required libraries if not already installed
+# install.packages("readr")  
+library(readr)
+
+# Step 2: Import CSV file
+data <- read_csv("C:/Users/chint/OneDrive/Faire_order_data_Jan2023_April2024.csv")
+
+# Step 3: View the imported data
+head(data)  # View the first few rows of the data to ensure it was imported correctly
+
+```
+
+```{r cars}
+
+# Load required libraries
+library(forecast)
+
+# Step 1: Convert Date column to Date format
+data$Date <- as.Date(data$Date, format = "%m/%d/%y")
+
+# Step 2: Filter data for the desired date range
+train_data <- subset(data, Date >= "2023-01-01" & Date <= "2023-12-31")
+test_data <- subset(data, Date > "2023-12-31")
+
+# Step 3: Create time series objects for train and test sets
+ts_train <- ts(train_data$`Qty. Sold`, frequency = 12)
+ts_test <- ts(test_data$`Qty. Sold`, frequency = 12)
+
+# Step 4: Model Selection and Training (using train_data)
+tryCatch(
+  {
+    sarima_model <- auto.arima(ts_train)
+  },
+  error = function(e) {
+    cat("Error in model selection:", conditionMessage(e), "\n")
+  }
+)
+
+# Step 5: Forecasting on test set
+forecast_result <- forecast(sarima_model, h = 12)
+
+# Step 6: Visualization and Reporting
+plot(forecast_result, main = "SARIMA Forecast for Demand")  # Plot forecast
+
+
+```
+
+```{r}
+# Check the structure of train_data
+str(train_data)
+
+# Print the first few rows of train_data
+head(train_data)
+
+```
+
+
+
